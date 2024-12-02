@@ -156,6 +156,7 @@ function buyHealth() {
     health += 10;
     goldText.innerText = gold;
     healthText.innerText = health;
+    text.innerText = "You healed 10 health points!";
   } else {
     text.innerText = "You do not have enough gold to buy health.";
   }
@@ -171,7 +172,7 @@ function buyWeapon() {
       let newWeapon = weapons[currentWeapon].name;
       text.innerText = "You now have a " + newWeapon + ".";
       inventory.push(newWeapon);
-      text.innerText += " In your inventory you have: " + inventory;
+      text.innerText += " In your inventory you have: " + inventory.join(", ");
     } else {
       text.innerText = "You do not have enough gold to buy a weapon.";
     }
@@ -240,14 +241,19 @@ function goFight() {
 
 //-----ATTACK ACTION
 //--called when player clicks on 'attack' button in cave location
+//--defines damage variables for damage dealt and damage received
 //--references fighting value from function that called goFight function
 function attack() {
+  let playerDamage = weapons[currentWeapon].power + Math.floor(Math.random() * xp) + 1;
+  let monsterDamage = getMonsterAttackValue(monsters[fighting].level);
   text.innerText = "The " + monsters[fighting].name + " attacks.";
+  text.innerText += " You lose " + monsterDamage + " health!\n";
   text.innerText += " You attack it with your " + weapons[currentWeapon].name + ".";
-  health -= getMonsterAttackValue(monsters[fighting].level);
+  health -= monsterDamage;
   //--randomizes damage dealt to monster; decreases monster's health
   if (isMonsterHit()) {
-    monsterHealth -= weapons[currentWeapon].power + Math.floor(Math.random() * xp) + 1;    
+    monsterHealth -= playerDamage;
+    text.innerText += " You dealt " + playerDamage + " damage!";
   } else {
     //--displays 'miss' text if player misses
     text.innerText += " You miss.";
@@ -274,7 +280,7 @@ function attack() {
   //checks to make sure current weapon isn't the last weapon in PLAYERS inventory;
   //don't wanna break the PLAYERS last weapon lol
   if (Math.random() <= .1 && inventory.length !== 1) {
-    text.innerText += " Your " + inventory.pop() + " breaks.";
+    text.innerText += "\nYour " + inventory.pop() + " breaks!";
     currentWeapon--;
   }
 }
@@ -305,14 +311,19 @@ function dodge() {
 }
 
 //-----PLAYER DEFEATS MONSTER
+//--defines gold and xp earned variables to be used in text
 //--adds gold and xp based on monster's level
 //--passes 'kill monster' object into update function
 function defeatMonster() {
-  gold += Math.floor(monsters[fighting].level * 6.7);
-  xp += monsters[fighting].level;
+  let goldEarned = Math.floor(monsters[fighting].level * 6.7);
+  let xpEarned = monsters[fighting].level;
+  gold += goldEarned;
+  xp += xpEarned;
   goldText.innerText = gold;
   xpText.innerText = xp;
   update(locations[4]);
+  text.innerText += "\nXP Earned: " + xpEarned;
+  text.innerText += "\nGold Earned: " + goldEarned;
 }
 
 //-----PLAYER LOSES LOL
